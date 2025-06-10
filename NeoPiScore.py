@@ -3,9 +3,6 @@ import json
 import os
 import matplotlib.pyplot as plt
 
-# -----------------------------------------------------------------------------
-# 1) MAPEAMENTO DE FACETAS → ITENS (0-based indices)
-# -----------------------------------------------------------------------------
 FACET_ITEMS: Dict[str, List[int]] = {
     # Neuroticismo
     "N1_Ansiedade": [0, 30, 60, 90, 120, 150, 180, 220],
@@ -44,23 +41,31 @@ FACET_ITEMS: Dict[str, List[int]] = {
     "C6_Ponderação": [29, 59, 89, 119, 149, 179, 209, 239],
 }
 
-# -----------------------------------------------------------------------------
-# Itens de pontuação reversa (conforme manual)
-# -----------------------------------------------------------------------------
 REVERSED_ITEMS = {
-    0, 60, 180, 35, 95, 125, 155, 10, 70, 45, 105, 165,
-    20, 80, 140, 230, 55, 115, 175, 205, 235, 31, 91,
-    6, 66, 126, 186, 41, 161, 191, 221, 136, 86, 146,
-    206, 38, 98, 158, 188, 13, 73, 133, 23, 83, 173,
-    233, 58, 118, 178, 208, 34, 94, 154, 9, 129, 189,
-    219, 44, 104, 19, 79, 139, 229, 54, 114, 174, 204,
-    89, 149
+    0, 60, 180,            # Ansiedade
+    35, 95, 125, 155,      # Hostilidade
+    10, 70,                # Depressão
+    45, 105, 165,          # Embaraço
+    20, 80, 140, 230,      # Impulsividade
+    55, 115, 175, 205, 235,# Vulnerabilidade
+    31, 91,                # Acolhimento Caloroso
+    6, 66, 126, 186,       # Gregariedade
+    41, 161, 191, 221,     # Assertividade
+    136,                   # Atividade
+    86, 146, 206,          # Emoções Positivas
+    38, 98, 158, 188,      # Franqueza
+    13, 73, 133,           # Altruísmo
+    23, 83, 173, 233,      # Modéstia
+    58, 118, 178, 208,     # Sensibilidade
+    34, 94, 154,           # Competência
+    9, 129, 189, 219,      # Ordem
+    44, 104,               # Senso de Dever
+    19, 79, 139, 229,      # Esforço por Realizações
+    54, 114, 174, 204,     # Autodisciplina
+    89, 149                # Ponderação
 }
 
 
-# -----------------------------------------------------------------------------
-# Carregamento de respostas JSON
-# -----------------------------------------------------------------------------
 def load_responses_json(path: str) -> List[int]:
     """Lê JSON de respostas e retorna lista ordenada."""
     with open(path, 'r', encoding='utf-8') as f:
@@ -68,9 +73,6 @@ def load_responses_json(path: str) -> List[int]:
     return [int(data[q]) for q in sorted(data, key=lambda x: int(x))]
 
 
-# -----------------------------------------------------------------------------
-# Cálculo de escores
-# -----------------------------------------------------------------------------
 def reverse_score(value: int) -> int:
     return 6 - value
 
@@ -100,9 +102,6 @@ def compute_domain_scores(facet_scores: Dict[str, int]) -> Dict[str, int]:
     return {dom: sum(facet_scores[f] for f in facs) for dom, facs in domains.items()}
 
 
-# -----------------------------------------------------------------------------
-# Plotagem
-# -----------------------------------------------------------------------------
 def plot_response_distribution(responses: List[int], save_dir: str):
     freq = [responses.count(i) for i in range(1, 6)]
     os.makedirs(save_dir, exist_ok=True)
@@ -130,22 +129,14 @@ def plot_domain_scores(domain_scores: Dict[str, int], save_dir: str):
     plt.close()
 
 
-# -----------------------------------------------------------------------------
-# Função main
-# -----------------------------------------------------------------------------
 def main():
     base = r"C:\Users\Vinícius Andrade\Desktop\neo-pi-r-score-indicators-with-python"
     respostas = load_responses_json(os.path.join(base, 'questionario', 'respostas.json'))
-    # Histograma geral
     plot_response_distribution(respostas, os.path.join(base, 'resultado'))
-    # Cálculo e gráfico por fator
     facet_scores = compute_facet_scores(respostas)
     domain_scores = compute_domain_scores(facet_scores)
     plot_domain_scores(domain_scores, os.path.join(base, 'resultado'))
 
 
-# -----------------------------------------------------------------------------
-# Execução
-# -----------------------------------------------------------------------------
 if __name__ == '__main__':
     main()
